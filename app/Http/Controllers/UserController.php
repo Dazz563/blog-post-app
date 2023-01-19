@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Follow;
 use Illuminate\Http\Request;
+use App\Events\OurExampleEvent;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\View;
 use Intervention\Image\Facades\Image;
@@ -22,6 +23,8 @@ class UserController extends Controller
         // auth is a global method available
         if(auth()->attempt(['username' => $incomingFields['loginusername'], 'password' => $incomingFields['loginpassword']])) {
             $req->session()->regenerate();
+            event(new OurExampleEvent(['username' => auth()->user()->username, 'action' => 'login']));
+
             return redirect('/')->with('success', 'You have successfully logged in!');
         } else {
             return redirect('/')->with('failure', 'Invalid login!');
@@ -58,6 +61,7 @@ class UserController extends Controller
 
     public function logout()
     {
+        event(new OurExampleEvent(['username' => auth()->user()->username, 'action' => 'logout']));
         auth()->logout();
         return redirect('/')->with('success', 'You are now logged out!');
     }
