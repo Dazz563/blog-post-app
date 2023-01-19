@@ -78,5 +78,16 @@ class PostController extends Controller
         return back()->with('success', 'Post successfully updated!');
     }
 
+    public function search($term)
+    {
+        // Belows code is SQL specific below this we will do a more laravel proper approach.
+        // return Post::where('title', 'LIKE', '%' . $term . '%')->orWhere('body', 'LIKE', '%' . $term . '%')->with('user:id,username,avatar')->get();
+
+        // We are going to use scout - composer require laravel/scout THEN php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
+        $posts = Post::search($term)->get();
+        $posts->load('getUser:id,username,avatar');
+        return $posts;
+    }
+
     
 }
