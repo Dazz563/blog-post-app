@@ -37,3 +37,5 @@ class SendNewPostEmail implements ShouldQueue
         Mail::to($this->incoming['sendTo'])->send(new NewPostEmail(['name' => $this->incoming['name'], 'title' => $this->incoming['title']]));
     }
 }
+
+
