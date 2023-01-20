@@ -15,6 +15,23 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
+    public function loginApi(Request $req) {
+        // validating incoming request
+        $incomingFields = $req->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+
+        // auth is a global method available
+        if(auth()->attempt($incomingFields)) {
+            $user = User::where('username', $incomingFields['username'])->first();
+            $token = $user->createToken('ourapptoken')->plainTextToken;
+            return $token;
+        }
+
+        return 'sorry you suck!';
+    }
+
     public function login(Request $req) {
         // validating incoming request
         $incomingFields = $req->validate([

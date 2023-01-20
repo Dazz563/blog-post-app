@@ -14,6 +14,28 @@ class PostController extends Controller
         return view('create-post');
     }
 
+    public function storeNewPostApi(Request $req) {
+        $incomingFields = $req->validate([
+            'title' => 'required',
+            'body' => 'required'
+        ]);
+
+        // strip out any malicious html a user might enter
+        $incomingFields['title'] = strip_tags($incomingFields['title']);
+        $incomingFields['body'] = strip_tags($incomingFields['body']);
+
+        // retrieves the id from the session using the global auth() function
+        $incomingFields['user_id'] = auth()->id();
+
+        // create post 
+        $newPost = Post::create($incomingFields);
+
+        // send email
+        dispatch(new SendNewPostEmail(['sendTo' => auth()->user()->email, 'name' => auth()->user()->username, 'title' => $newPost->title]));
+
+        return $newPost;
+    }
+
     public function storeNewPost(Request $req) {
         $incomingFields = $req->validate([
             'title' => 'required',
@@ -49,6 +71,14 @@ class PostController extends Controller
         $post['body'] = Str::markdown($post->body);
         
         return view('single-post', ['post' => $post]);
+    }
+
+    public function deleteApi(Post $post)
+    {
+        $post->delete();
+
+        return 'true';
+        
     }
 
     public function delete(Post $post)
